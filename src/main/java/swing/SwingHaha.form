@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="swing.SwingHaha">
+  <grid id="27dc6" binding="panel1" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="10" left="10" bottom="10" right="10"/>
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties>
+      <background color="-2171170"/>
+      <enabled value="false"/>
+      <foreground color="-8750470"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="52884" class="javax.swing.JButton" binding="btnClear">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <actionCommand value="清空日志"/>
+          <autoscrolls value="true"/>
+          <background color="-2171170"/>
+          <foreground color="-14211289"/>
+          <label value="清空日志"/>
+          <text value="清空日志"/>
+          <toolTipText value="清空日志信息"/>
+        </properties>
+      </component>
+      <grid id="90eef" binding="panel2" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-2171170"/>
+        </properties>
+        <border type="none" title="选择或拖拽源文件，目录中请不要包含空格"/>
+        <children>
+          <component id="760af" class="javax.swing.JLabel" binding="labelSrc">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="7063f"/>
+              <text value="源文件"/>
+            </properties>
+          </component>
+          <component id="f70e5" class="javax.swing.JLabel" binding="abelDes">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="目标目录"/>
+            </properties>
+          </component>
+          <component id="88f39" class="javax.swing.JTextField" binding="srcPath">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="412df" class="javax.swing.JTextField" binding="desPath">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="2293c" class="javax.swing.JButton" binding="btnSelect">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <actionCommand value="浏览"/>
+              <background color="-2171170"/>
+              <foreground color="-14211289"/>
+              <label value="浏览"/>
+              <text value="浏览"/>
+            </properties>
+          </component>
+          <component id="f26ad" class="javax.swing.JButton" binding="btnOpen">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <actionCommand value="打开"/>
+              <background color="-2171170"/>
+              <foreground color="-14211289"/>
+              <label value="打开"/>
+              <text value="打开"/>
+            </properties>
+          </component>
+          <component id="bb4a2" class="javax.swing.JLabel" binding="sleepLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="采集间隔(秒)"/>
+            </properties>
+          </component>
+          <component id="b1be9" class="javax.swing.JTextField" binding="sleepNum">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
+      <scrollpane id="590e" binding="jPane">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="7063f" class="javax.swing.JTextArea" binding="textArea1">
+            <constraints/>
+            <properties>
+              <background color="-16313782"/>
+              <foreground color="-1578007"/>
+              <text value=""/>
+              <toolTipText value="日志描述"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="ad136" class="javax.swing.JButton" binding="btnExec">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <actionCommand value="执行"/>
+          <background color="-2171170"/>
+          <foreground color="-14211289"/>
+          <hideActionText value="false"/>
+          <label value="执行"/>
+          <text value="执行"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
