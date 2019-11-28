@@ -10,14 +10,13 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import swing.ExcelUtil.ExceDate;
 import swing.ExcelUtil.ImportExcelUtil;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
@@ -55,10 +54,9 @@ public class Reptile implements PageProcessor {
 
     @Override
     public Site getSite() {
-//        for (Cookie cookie : cookies) {
-//            site.addCookie(cookie.getName().toString(), cookie.getValue().toString());
-//        }
-        site.addCookie("JSESSIONID", "3E89CDC1E29D96EF225C36B2396D2C4E");
+        for (Cookie cookie : cookies) {
+            site.addCookie(cookie.getName().toString(), cookie.getValue().toString());
+        }
         return site;
     }
 
@@ -84,11 +82,13 @@ public class Reptile implements PageProcessor {
         exceDate.setKfkc(kfkcMap.get(hpbmStr)+"");
 
         if (StringUtils.isEmpty(endMsg)) {//天猫没有获取到
-            Map<String,Object> map = new HashMap<>();
-            map.put("JSESSIONID","3E89CDC1E29D96EF225C36B2396D2C4E");
-            page.addTargetRequests(page.getHtml().links().regex("https://s.taobao.com/search?tab=old&q=9787040330755").all());
-            String msgTaobao = page.getHtml().xpath("//div[@class='pic']/a/tidyText()").toString();
-            System.out.println("msgTaobao="+msgTaobao);
+            System.out.println("#########################"+hpbmStr+"在天猫未获取到###########################");
+            Request request = new Request();
+            request.setUrl("https://s.taobao.com/search?tab=old&q=9787040330755");
+            page.addTargetRequest(request);
+//            page.addTargetRequests(page.getHtml().links().regex("https://s.taobao.com/search?tab=old&q=9787040330755").all());
+//            String msgTaobao = page.getHtml().xpath("//div[@class='pic']/a/tidyText()").toString();
+//            System.out.println("msgTaobao="+msgTaobao);
         }
 
         needList.add(exceDate);
@@ -97,39 +97,73 @@ public class Reptile implements PageProcessor {
 
     }
 
-//    @Test
-//    public void test(){
-//        try {
-//            Login();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Test
+    public void test(){
+        try {
+            Login();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
-//    public static void Login() throws IOException {
-//        System.setProperty("webdriver.chrome.driver",
-//                "C:\\Users\\86136\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe");
-//
-//        WebDriver driver = new ChromeDriver();
-//        driver.manage().window().maximize();
-//        driver.get("https://login.taobao.com/member/login.jhtml");
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        driver.findElement(By.xpath("//div[@class='field username-field']/span/input")).sendKeys("13687681257");
-//        driver.findElement(By.xpath("//div[@class='field pwd-field']/span/input")).sendKeys("Zuorong.118");
-//        //获取点击按钮
-//        WebElement element = driver.findElement(By.xpath("//button[@class='submit']"));
-//
-//        //模拟点击
-//        element.click();
-//        //很重要的一步获取登陆后的cookies
-//        cookies = driver.manage().getCookies();
-//        driver.close();
-//    }
+    public static void Login() throws IOException {
+        System.setProperty("webdriver.chrome.driver",
+                "D:\\develop\\Chrome\\driver2.46\\chromedriver.exe");
+
+
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://login.taobao.com/member/login.jhtml");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 获取 网页的 title
+        WebElement checkbox = driver.findElement(By.xpath("//i[@class='iconfont static']"));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", checkbox);
+
+        WebElement userName = driver.findElement(By.xpath("//input[@id='TPL_username_1']"));
+        js.executeScript("arguments[0].value='13687681257'", userName);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebElement passWord = driver.findElement(By.xpath("//input[@id='TPL_password_1']"));
+        js.executeScript("arguments[0].value='Zuorong.118'", passWord);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebElement loginButton = driver.findElement(By.xpath("//button[@id='J_SubmitStatic']"));
+        js.executeScript("arguments[0].click();", loginButton);
+
+        if (driver.findElement(By.xpath("//span[@class='nc-lang-cnt']")).getText().indexOf("拖动") > -1) {
+            WebElement passWordAgain = driver.findElement(By.xpath("//input[@id='TPL_password_1']"));
+            js.executeScript("arguments[0].value='Zuorong.118'", passWordAgain);
+
+            WebElement slider = driver.findElement(By.id("nc_1_n1z"));
+
+            Actions action = new Actions(driver);
+            action.dragAndDropBy(slider,500,0).perform();
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //很重要的一步获取登陆后的cookies
+        cookies = driver.manage().getCookies();
+        //driver.close();
+    }
 
     public static void changeStart(String inFilePath,String outFilePath) throws FileNotFoundException {
         String fileName = StringUtils.substringAfterLast(inFilePath,"\\");
@@ -156,13 +190,11 @@ public class Reptile implements PageProcessor {
             kfkcMap.put(clientList.get(i).getHpbh(),clientList.get(i).getKfkc());
             str[i] = needUrl+clientList.get(i).getHpbh();
         }
-//        try {
-//            System.out.println("==================模拟登陆开始=============");
-//            Login();
-//        } catch (IOException e) {
-//            System.out.println("===================登陆失败===================");
-//            e.printStackTrace();
-//        }
+        try {
+            Login();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Spider.create(new Reptile())
                 .addUrl(str)
                 //.addPipeline(new ConsolePipeline())
