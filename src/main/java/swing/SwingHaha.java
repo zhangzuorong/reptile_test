@@ -31,8 +31,10 @@ public class SwingHaha {
     /**
      * 抓取页面数据所需的参数
      */
-    //爬虫获取规则
+    //爬虫获取规则(天猫)
     public static String needRules = "//div[@class='productImg-wrap']/a/tidyText()";
+    //爬虫获取规则(淘宝)
+    public static String taoBaoRules = "//div[@class='pic']/a/tidyText()";
     //目标页面链接
     public static String needUrl = "https://list.tmall.com/search_product.htm?q=";
     //淘宝目标页面链接
@@ -174,11 +176,11 @@ public class SwingHaha {
                             return ;
                         }
                         sleepTime = Integer.parseInt(sleepNum.getText())*1000;
-                        System.out.println("===================开始===================");
+                        System.out.println("=======================开始========================");
                         try {
                             Reptile.changeStart(inFilePath,outFilePath);
                         } catch (FileNotFoundException e1) {
-                            System.out.println("===================程序出错了===================");
+                            System.out.println("======================程序出错了=====================");
                             e1.printStackTrace();
                         }
                     }

@@ -1,34 +1,23 @@
 package swing;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.DateUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import swing.ExcelUtil.ExceDate;
+import swing.ExcelUtil.ExportExcelUtil;
 import swing.ExcelUtil.ImportExcelUtil;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
-import us.codecraft.webmagic.selector.Selectable;
-import us.codecraft.webmagic.selector.Selector;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
-
-import static org.apache.http.client.utils.DateUtils.formatDate;
 import static swing.SwingHaha.*;
 
 /**
@@ -42,9 +31,11 @@ import static swing.SwingHaha.*;
  */
 public class Reptile implements PageProcessor {
 
-    public static List<ExceDate> needList;
+    public static List<ExceDate> needList;//能获取到所需id的集合
+    public static List<ExceDate> noGetList;//不能获取到所需id的集合
 
-    public static Map<String,Object> kfkcMap;
+    public static Map<String,Object> kfkcMap;//可发库存集合
+    public static Map<String,Object> sjbmMap;//商家编码集合
 
     //设置一个全局的参数存放登陆cookies
     private static Set<Cookie> cookies;
@@ -54,9 +45,11 @@ public class Reptile implements PageProcessor {
 
     @Override
     public Site getSite() {
-        for (Cookie cookie : cookies) {
-            site.addCookie(cookie.getName().toString(), cookie.getValue().toString());
-        }
+//        if (cookies.size() > 0) {
+//            for (Cookie cookie : cookies) {
+//                site.addCookie(cookie.getName().toString(), cookie.getValue().toString());
+//            }
+//        }
         return site;
     }
 
@@ -65,51 +58,54 @@ public class Reptile implements PageProcessor {
     public void process(Page page) {
 
         String msg = page.getHtml().xpath(needRules).toString();
-        String endMsg = "";
+        String msgTao = page.getHtml().xpath(taoBaoRules).toString();
+        String tianMaoMsg = "";
         if (StringUtils.isNotBlank(msg)) {
             String strOne = StringUtils.substringBefore(msg,"&");
             String strEnd = StringUtils.substringAfter(strOne,"id=");
-            endMsg = strEnd;
+            tianMaoMsg = strEnd;
         }
+        //System.out.println("msgTaoBao"+msgTao);
 
         // 部分二：定义如何抽取页面信息，并保存下来
         String hpbmStr = StringUtils.substringAfter(page.getUrl().toString(),"q=");
 
         ExceDate exceDate = new ExceDate();
         exceDate.setHpbh(hpbmStr);
-        exceDate.setTmlj(tmallLink + endMsg);
-        exceDate.setTmljid(endMsg);
+        exceDate.setTmlj(tmallLink + tianMaoMsg);
+        exceDate.setTmljid(tianMaoMsg);
         exceDate.setKfkc(kfkcMap.get(hpbmStr)+"");
+        exceDate.setSpbh(sjbmMap.get(hpbmStr)+"");
 
-        if (StringUtils.isEmpty(endMsg)) {//天猫没有获取到
-            System.out.println("#########################"+hpbmStr+"在天猫未获取到###########################");
-            Request request = new Request();
-            request.setUrl("https://s.taobao.com/search?tab=old&q=9787040330755");
-            page.addTargetRequest(request);
-//            page.addTargetRequests(page.getHtml().links().regex("https://s.taobao.com/search?tab=old&q=9787040330755").all());
-//            String msgTaobao = page.getHtml().xpath("//div[@class='pic']/a/tidyText()").toString();
-//            System.out.println("msgTaobao="+msgTaobao);
+//        if (StringUtils.isEmpty(tianMaoMsg)) {//天猫没有获取到
+//            System.out.println("#########################"+hpbmStr+"在天猫未获取到###########################");
+//            List<String> list = new ArrayList<>();
+//            list.add("https://s.taobao.com/search?tab=old&q=9787040330755");
+//            page.addTargetRequests(list);
+//            System.out.println("#########################追加链接完成###########################");
+//        }
+
+        if (StringUtils.isEmpty(exceDate.getTbljid()) && StringUtils.isEmpty(exceDate.getTmljid())) {
+            noGetList.add(exceDate);
+        }else {
+            needList.add(exceDate);
         }
 
-        needList.add(exceDate);
-        System.out.println("货品编码为" + hpbmStr + "的产品，天猫ID为："+ endMsg);
-
-
+        System.out.println("货品编码为" + hpbmStr + "的产品，天猫ID为："+ tianMaoMsg);
     }
-
-    @Test
-    public void test(){
-        try {
-            Login();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void test(){
+//        try {
+//            Login();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     public static void Login() throws IOException {
         System.setProperty("webdriver.chrome.driver",
-                "D:\\develop\\Chrome\\driver2.46\\chromedriver.exe");
+                "D:\\develop\\Chrome\\driver78\\chromedriver.exe");
 
 
         WebDriver driver = new ChromeDriver();
@@ -175,26 +171,34 @@ public class Reptile implements PageProcessor {
         map.put("货品编号","hpbh");
         map.put("可发库存","kfkc");
         map.put("天猫链接","tmlj");
+        map.put("淘宝链接","tblj");
+        map.put("天猫链接ID","tmljid");
 
         List<Map<String,Object>> resultList = null;
         try {
             resultList = ImportExcelUtil.getListTwo(fis,fileName, map);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("======================导入失败======================");
         }
         ArrayList<ExceDate> clientList = JSON.parseObject(JSON.toJSONString(resultList), new TypeReference<ArrayList<ExceDate>>() {});
         String[] str = new String[clientList.size()];
+        sjbmMap = new HashMap<>();
         kfkcMap = new HashMap<>();
         needList = new ArrayList<>();
+        noGetList = new ArrayList<>();
         for (int i = 0; i < clientList.size(); i++){
             kfkcMap.put(clientList.get(i).getHpbh(),clientList.get(i).getKfkc());
+            sjbmMap.put(clientList.get(i).getHpbh(),clientList.get(i).getSpbh());
             str[i] = needUrl+clientList.get(i).getHpbh();
         }
-        try {
-            Login();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Login();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("########################模拟登陆失败#####################");
+//            System.out.println(e);
+//        }
         Spider.create(new Reptile())
                 .addUrl(str)
                 //.addPipeline(new ConsolePipeline())
@@ -205,114 +209,14 @@ public class Reptile implements PageProcessor {
         Calendar ca = Calendar.getInstance();
         ca.setTime(new Date());
         ca.add(Calendar.HOUR_OF_DAY,8);
-        getExcel(outFilePath+"\\"+onlyName+ DateUtils.formatDate(ca.getTime(),"HHmmss")+"."+endName);
-        System.out.println("===================导出完毕===================");
-    }
+        String dateStr = DateUtils.formatDate(ca.getTime(),"HHmmss");
+        ExportExcelUtil.getExcel(outFilePath+"\\"+onlyName+ dateStr +".xls",needList);
 
-    //====================================================================================================================
-
-    public static void getExcel(String outFilePath){
-        String jsonStr = "{listHead: [" +
-                "{title: '货品编号',column: 'hpbh'}," +
-                "{title: '可发库存',column: 'kfkc'}," +
-                "{title: '天猫链接',column: 'tmlj'}," +
-                "{title: '天猫链接ID',column: 'tmljid'}" +
-                "]}";
-
-        JSONObject jsonObject = JSONObject.parseObject(jsonStr);
-        List<Map<String, Object>> listHead = (List<Map<String, Object>>) jsonObject.get("listHead");
-
-        exportExcel(listHead,needList,outFilePath);
-
-    }
-
-    public static void exportExcel(List<Map<String, Object>> listHead, List<ExceDate> listDataSource, String outFilePath) {
-        HSSFWorkbook workbook = getHSSFWorkbook(listHead, listDataSource);
-        File file1 = new File(outFilePath);
-        try {
-            FileOutputStream out = new FileOutputStream(file1);
-            workbook.write(out);
-            out.close();
-        } catch (IOException var7) {
-            var7.printStackTrace();
+        if (noGetList.size() > 0) {
+            System.out.println("===================导出未获取到的数据===================");
+            ExportExcelUtil.getExcel(outFilePath+"\\"+"未抓到ID"+onlyName+ dateStr +".xls",noGetList);
         }
+        System.out.println("=======================导出完毕======================");
     }
 
-    public static HSSFWorkbook getHSSFWorkbook(List<Map<String, Object>> listHead, List<ExceDate> listDataSource) {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("sheet1");
-        HSSFRow headerRow = sheet.createRow(0);
-        for (int i = 0; i < listHead.size(); i ++){
-            if (listHead.get(i).get("column") != null) {
-                HSSFCell cell = headerRow.createCell(i);
-                cell.setCellValue(listHead.get(i).get("title").toString());
-            }
-        }
-        int index = 0;
-        Iterator var6 = listDataSource.iterator();
-
-        while(var6.hasNext()) {
-            Object obj = var6.next();
-            ++index;
-            HSSFRow headerRowL = sheet.createRow(index);
-            Map<String, Object> map = getFiledsInfo(obj);
-            map.forEach((k, v) -> {
-                for (int i = 0; i < listHead.size(); i ++){
-                    if (listHead.get(i).get("column") != null && org.apache.commons.lang.StringUtils.equals(k, listHead.get(i).get("column").toString())) {
-                        HSSFCell cell = headerRowL.createCell(i);
-                        if (org.apache.commons.lang.StringUtils.equals(listHead.get(i).get("column").toString(), "kfkc")) {
-                            try{
-                                cell.setCellValue(Integer.parseInt(v.toString()));
-                            }catch (Exception e){
-                                cell.setCellValue("");
-                            }
-                        } else {
-                            cell.setCellValue(v.toString());
-                        }
-                    }
-                }
-            });
-        }
-
-        return workbook;
-    }
-
-    public static Map<String, Object> getFiledsInfo(Object o) {
-        List<Field> fieldList = new ArrayList();
-        Class tempClass = o.getClass();
-        if (org.apache.commons.lang.StringUtils.equals(tempClass.toString(), "class java.util.HashMap")) {
-            return (Map)o;
-        } else {
-            while(tempClass != null) {
-                fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
-                tempClass = tempClass.getSuperclass();
-            }
-
-            Map infoMap = new HashMap();
-
-            for(int i = 0; i < fieldList.size(); ++i) {
-                Object value = getFieldValueByName(((Field)fieldList.get(i)).getName(), o);
-                if (org.apache.commons.lang.StringUtils.equals(((Field)fieldList.get(i)).getType().toString(), "class java.util.Date") && value != null && !org.apache.commons.lang.StringUtils.equals(value.toString(), "")) {
-                    value = formatDate((Date)value, (String)null);
-                }
-
-                infoMap.put(((Field)fieldList.get(i)).getName(), value != null ? value : "暂无此项数据");
-            }
-
-            return infoMap;
-        }
-    }
-
-    public static Object getFieldValueByName(String fieldName, Object o) {
-        try {
-            String firstLetter = fieldName.substring(0, 1).toUpperCase();
-            String getter = "get" + firstLetter + fieldName.substring(1);
-            Method method = o.getClass().getMethod(getter);
-            Object value = method.invoke(o);
-            return value;
-        } catch (Exception var6) {
-            System.out.println(var6.getMessage());
-            return null;
-        }
-    }
 }
