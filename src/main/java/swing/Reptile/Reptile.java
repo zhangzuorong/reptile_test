@@ -1,10 +1,9 @@
-package swing;
+package swing.Reptile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.DateUtils;
-import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;

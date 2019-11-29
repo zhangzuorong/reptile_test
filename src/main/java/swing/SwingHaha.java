@@ -2,6 +2,7 @@ package swing;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pushingpixels.substance.api.skin.*;
+import swing.Reptile.Reptile;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
